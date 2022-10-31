@@ -1,11 +1,13 @@
 import torch
 
+
 class SaveBestModel:
 
     def __init__(
-            self, best_valid_loss=float('inf')
+            self, dir_model, best_valid_loss=float('inf')
     ):
         self.best_valid_loss = best_valid_loss
+        self.dir_model = dir_model
 
     def __call__(
             self, current_valid_loss,
@@ -18,6 +20,5 @@ class SaveBestModel:
                 'epoch': epoch + 1,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
-                'loss': criterion,
-                # }, "gdrive/MyDrive/Colab Notebooks/best_model_T5_9_out.pt")
-            }, name_model)
+                'loss': criterion
+            }, f'{self.dir_model}{name_model}')
