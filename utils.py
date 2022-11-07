@@ -67,7 +67,7 @@ def train(model, train_dataloader, valid_dataloader, optimizer, criterion, lr,
 
         list_loss_train.append(train_loss / len(train_dataloader))
 
-        num_examples = len(valid_dataloader.valid_dataset)
+        num_examples = len(valid_dataloader.dataset)
 
         accuracy_valid, loss_valid = evaluate(model, num_examples, valid_dataloader, criterion, device)
 
