@@ -1,6 +1,7 @@
 import torch
 from typing import List
 
+
 class ImdbDataset(torch.utils.data.Dataset):
     def __init__(self, corpus: List[str], labels: List[bool], truncate: int, tokenizer):
         self.x = []

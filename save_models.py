@@ -4,7 +4,7 @@ import torch
 class SaveBestModel:
 
     def __init__(
-            self, dir_model, best_valid_loss=float('inf')
+            self, dir_model='', best_valid_loss=float('inf')
     ):
         self.best_valid_loss = best_valid_loss
         self.dir_model = dir_model
