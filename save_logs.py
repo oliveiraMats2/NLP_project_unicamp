@@ -1,3 +1,5 @@
+import os
+
 class SaveLoss:
     def __init__(self, dir_data='gdrive/MyDrive/Colab Notebooks/'):
         self.dir_data = dir_data

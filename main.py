@@ -1,8 +1,8 @@
 import random, torch
-from transformers import BertTokenizer, BertForSequenceClassification
-from NLP_project_unicamp.imdb_dataset import ImdbDataset
-from NLP_project_unicamp.save_logs import SaveLoss
-from NLP_project_unicamp.utils import set_device, load_texts, train, evaluate
+from transformers import GPT2Config, GPT2LMHeadModel, GPT2Tokenizer, BertTokenizer
+from imdb_dataset import ImdbDataset
+from save_logs import SaveLoss
+from utils import set_device, load_texts, train, evaluate
 
 
 # save in yaml
@@ -18,11 +18,10 @@ configs = {'learning_rate': [1e-2, 1e-3, 1e-4, 1e-5, 1e-6],
            }
 
 device = set_device()
-
-x_train_pos = load_texts('../aclImdb/train/pos')
-x_train_neg = load_texts('../aclImdb/train/neg')
-x_test_pos = load_texts('../aclImdb/test/pos')
-x_test_neg = load_texts('../aclImdb/test/neg')
+x_train_pos = load_texts('aclImdb/train/pos')
+x_train_neg = load_texts('aclImdb/train/neg')
+x_test_pos = load_texts('aclImdb/test/pos')
+x_test_neg = load_texts('aclImdb/test/neg')
 
 x_train = x_train_pos + x_train_neg
 x_test = x_test_pos + x_test_neg
@@ -46,19 +45,24 @@ print(len(x_test), 'amostras de teste.')
 
 save_scores = SaveLoss('')
 
-model = BertForSequenceClassification.from_pretrained(configs['models'][0])
+config = GPT2Config()
 
+model = GPT2LMHeadModel.from_pretrained("gpt2")
+#model = BertForSequenceClassification.from_pretrained(configs['models'][0])
+
+#tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
 tokenizer = BertTokenizer.from_pretrained(configs['models'][0])
 
 truncate = 50
 
-train_dataset = ImdbDataset(x_train[:truncate], y_train[:truncate], configs['context_size'], tokenizer)
 
-valid_dataset = ImdbDataset(x_valid[:truncate], y_valid[:truncate], configs['context_size'], tokenizer)
+train_dataset = ImdbDataset(x_train[:truncate], tokenizer, configs["context_size"])
+
+valid_dataset = ImdbDataset(x_valid[:truncate], tokenizer, configs["context_size"])
 
 train_dataloader = torch.utils.data.DataLoader(train_dataset,
                                                batch_size=configs['batch_size_train'][0],
-                                               shuffle=True)
+                                               shuffle=False)# change
 
 valid_dataloader = torch.utils.data.DataLoader(valid_dataset,
                                                batch_size=configs['batch_size_valid'],
@@ -69,18 +73,13 @@ optimizer = torch.optim.SGD(model.parameters(), lr=configs['learning_rate'][0])
 dict_statistics = {'train_loss': [],
                    'valid_loss': [],
                    'valid_accuracy': []}
-#model, train_dataloader, valid_dataloader, optimizer, criterion, lr,
-          #batch_size_train, name_models, num_epochs, save_scores, device
+#model, train_loader, valid_dataloader, optimizer, criterion, num_epochs, device
 list_loss_train, accuracy_list_valid, list_loss_valid = train(model.to(device),
                                                               train_dataloader,
                                                               valid_dataloader,
                                                               optimizer,
                                                               configs['criterion'],
-                                                              configs['learning_rate'][0],
-                                                              configs['batch_size_train'][0],
-                                                              configs['models'][0],
                                                               configs['num_iterations'],
-                                                              save_scores,
                                                               device)
 
 dict_statistics['train_loss'] += list_loss_train
