@@ -32,7 +32,7 @@ def load_texts(folder):
     return texts
 
 
-def evaluate(model, loader, criterion, device):
+def evaluate(model, loader, device):
     acc_loss = 0
     with trange(len(loader), desc='Train Loop') as progress_bar:
         for batch_idx, sample_batch in zip(progress_bar, loader):
@@ -41,6 +41,10 @@ def evaluate(model, loader, criterion, device):
             loss_valid = model(**inputs, labels=inputs["input_ids"]).loss
 
             acc_loss += loss_valid.item()
+
+            progress_bar.set_postfix(
+                desc=f'iteration: {batch_idx:d}/{len(loader):d}, loss: {loss_valid.item():.5f}'
+            )
 
     return acc_loss / (len(loader))
 
@@ -71,6 +75,6 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
 
             list_loss_train.append(train_loss / len(train_loader))
 
-            evaluate(model, valid_dataloader, criterion, device)
+            evaluate(model, valid_dataloader, device)
 
     return list_loss_train, accuracy_list_valid, list_loss_valid

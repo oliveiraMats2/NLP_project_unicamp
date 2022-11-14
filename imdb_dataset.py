@@ -36,8 +36,14 @@ class ImdbDataset(torch.utils.data.Dataset):
         tokenizer.cls_token = '[EOS]'
 
         self.tokenizer = tokenizer
-
+        """
+        I need to put in de model slices of de sentences.
+        """
         for text in tqdm(texts):
+
+            if len(text.split(' ')) > 500:
+                continue
+
             tokenized_text = self.tokenizer(f'{text}',
                                             return_tensors='pt',
                                             add_special_tokens=False)
