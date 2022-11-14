@@ -43,7 +43,7 @@ def split_text_range(text, length_vector=20):
     return text_result
 
 
-class ImdbDataset(torch.utils.data.Dataset):
+class ImdbDataset_slice(torch.utils.data.Dataset):
     def __init__(self, texts: List[str], tokenizer, max_seq_length: int):
         self.max_seq_length = max_seq_length
         self.examples = []
@@ -65,6 +65,9 @@ class ImdbDataset(torch.utils.data.Dataset):
                                             return_tensors='pt',
                                             add_special_tokens=False)
 
+            [self.tokenizer.pad_token_id] * max(0,
+                                                1 + max_seq_length - len(tokenized_text))
+
             self.examples.append(tokenized_text)
 
     def __len__(self):
@@ -74,7 +77,7 @@ class ImdbDataset(torch.utils.data.Dataset):
         return self.examples[idx]
 
 
-class ImdbDataset_slice(torch.utils.data.Dataset):
+class ImdbDataset(torch.utils.data.Dataset):
     def __init__(self, texts: List[str], tokenizer, max_seq_length: int):
         self.max_seq_length = max_seq_length
         self.examples = []

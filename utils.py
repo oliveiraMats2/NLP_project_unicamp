@@ -3,6 +3,7 @@ import os
 from tqdm import trange
 from save_models import SaveBestModel
 import yaml
+
 save_best_model = SaveBestModel()
 
 
@@ -32,24 +33,30 @@ def load_texts(folder):
     return texts
 
 
-def evaluate(model, loader, device):
+def evaluate(model, loader, criterion, device):
     acc_loss = 0
-    with trange(len(loader), desc='Train Loop') as progress_bar:
-        for batch_idx, sample_batch in zip(progress_bar, loader):
-            inputs = sample_batch.to(device)
+    with torch.no_grad():
+        model.eval()
 
-            loss_valid = model(**inputs, labels=inputs["input_ids"]).loss
+        with trange(len(loader), desc='Train Loop') as progress_bar:
+            for batch_idx, sample_batch in zip(progress_bar, loader):
+                inputs = sample_batch[0].to(device)
+                labels = sample_batch[1].to(device)
 
-            acc_loss += loss_valid.item()
+                outputs = model(inputs)
+                logits = outputs.logits.permute(0, 2, 1)
 
-            progress_bar.set_postfix(
-                desc=f'iteration: {batch_idx:d}/{len(loader):d}, loss: {loss_valid.item():.5f}'
-            )
+                loss = criterion(logits, labels)
+                acc_loss += loss.item()
 
-    return acc_loss / (len(loader))
+                progress_bar.set_postfix(
+                    desc=f'iteration: {batch_idx:d}/{len(loader):d}, loss: {loss.item():.5f}, perplexity: {torch.exp(loss)} '
+                )
+
+    return loss / (len(loader))
 
 
-def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epochs, device):
+def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epochs, device, avaliable_time=100):
     train_loss = 0
     list_loss_valid = []
     accuracy_list_valid = []
@@ -60,27 +67,23 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
             for batch_idx, sample_batch in zip(progress_bar, train_loader):
                 optimizer.zero_grad()
 
-                inputs = sample_batch.to(device)
+                inputs = sample_batch[0].to(device)
+                labels = sample_batch[1].to(device)
 
-                ouputs = model(**inputs, labels=inputs["input_ids"])
-                loss = ouputs.loss
+                outputs = model(inputs)
+                logits = outputs.logits.permute(0, 2, 1)
+
+                loss = criterion(logits, labels)
                 train_loss += loss.item()
 
                 progress_bar.set_postfix(
-                    desc=f'[epoch: {epoch + 1:d}], iteration: {batch_idx:d}/{len(train_loader):d}, loss: {loss.item():.5f}'
+                    desc=f'[epoch: {epoch + 1:d}], iteration: {batch_idx:d}/{len(train_loader):d}, loss: {loss.item():.5f}, perplexity: {torch.exp(loss)}'
                 )
 
                 loss.backward()
                 optimizer.step()
 
+            valid_loss = evaluate(model, valid_dataloader, criterion, device)
             list_loss_train.append(train_loss / len(train_loader))
 
-            evaluate(model, valid_dataloader, device)
-
     return list_loss_train, accuracy_list_valid, list_loss_valid
-
-# def split_corpus_processing(texts: List[str]) -> List[str]:
-#     for i, text in enumerate(texts):
-#         while True:
-#             text_split = text.split(" ")
-#             if len() > 100:
