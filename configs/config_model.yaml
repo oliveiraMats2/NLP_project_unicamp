@@ -1,0 +1,8 @@
+context_size: 9
+batch_size_train: 1
+batch_size_valid: 1
+learning_rate: 0.00005
+num_iterations: 50
+
+#----- wandb
+wandb: true

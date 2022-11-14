@@ -2,8 +2,15 @@ import torch
 import os
 from tqdm import trange
 from save_models import SaveBestModel
-
+import yaml
 save_best_model = SaveBestModel()
+
+
+def read_yaml(file: str) -> yaml.loader.FullLoader:
+    with open(file, "r") as yaml_file:
+        configurations = yaml.load(yaml_file, Loader=yaml.FullLoader)
+
+    return configurations
 
 
 def set_device():
@@ -63,10 +70,6 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
                 optimizer.step()
 
             list_loss_train.append(train_loss / len(train_loader))
-
-            num_examples = len(valid_dataloader.dataset)
-
-            device = 'cpu'
 
             evaluate(model, valid_dataloader, criterion, device)
 
