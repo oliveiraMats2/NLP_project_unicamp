@@ -78,3 +78,9 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
             evaluate(model, valid_dataloader, device)
 
     return list_loss_train, accuracy_list_valid, list_loss_valid
+
+# def split_corpus_processing(texts: List[str]) -> List[str]:
+#     for i, text in enumerate(texts):
+#         while True:
+#             text_split = text.split(" ")
+#             if len() > 100:

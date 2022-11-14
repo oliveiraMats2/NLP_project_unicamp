@@ -1,6 +1,6 @@
 import random, torch
-from transformers import GPT2Config, GPT2LMHeadModel, GPT2Tokenizer, BertTokenizer
-from imdb_dataset import ImdbDataset
+from transformers import GPT2Config, GPT2LMHeadModel, GPT2Tokenizer, BertTokenizer, AutoModelForPreTraining
+from imdb_dataset import ImdbDataset, ImdbDataset_slice
 from save_logs import SaveLoss
 from utils import set_device, load_texts, train, read_yaml
 
@@ -31,7 +31,7 @@ save_scores = SaveLoss('')
 
 config = GPT2Config()
 
-model = GPT2LMHeadModel.from_pretrained("gpt2")
+model = AutoModelForPreTraining.from_pretrained("gpt2")
 
 tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
 

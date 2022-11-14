@@ -26,6 +26,23 @@ class ImdbDataset_old(torch.utils.data.Dataset):
         return self.x[idx], self.y[idx]
 
 
+def split_text_range(text, length_vector=20):
+    list_text_result = []
+
+    list_split = text.split(' ')
+    length_list_split = len(list_split)
+    text_result = ''
+
+    partionally = length_list_split // length_vector
+
+    for i in range(length_list_split - 1):
+        text_parcial = list_split[i * partionally: (i + 1) * partionally]
+        text_result = ' '.join(text_parcial)
+        list_split.append(text_result)
+
+    return text_result
+
+
 class ImdbDataset(torch.utils.data.Dataset):
     def __init__(self, texts: List[str], tokenizer, max_seq_length: int):
         self.max_seq_length = max_seq_length
@@ -34,16 +51,16 @@ class ImdbDataset(torch.utils.data.Dataset):
         tokenizer.pad_token = '[PAD]'
         tokenizer.eos_token = '[SEP]'
         tokenizer.cls_token = '[EOS]'
-
+        print("particionalizando texts")
         self.tokenizer = tokenizer
         """
         I need to put in de model slices of de sentences.
         """
+        for i, text in tqdm(enumerate(texts)):
+            texts[i] += split_text_range(text, length_vector=20)
+            texts.pop(0)
+
         for text in tqdm(texts):
-
-            if len(text.split(' ')) > 500:
-                continue
-
             tokenized_text = self.tokenizer(f'{text}',
                                             return_tensors='pt',
                                             add_special_tokens=False)
@@ -57,7 +74,7 @@ class ImdbDataset(torch.utils.data.Dataset):
         return self.examples[idx]
 
 
-class ImdbDataset_v1(torch.utils.data.Dataset):
+class ImdbDataset_slice(torch.utils.data.Dataset):
     def __init__(self, texts: List[str], tokenizer, max_seq_length: int):
         self.max_seq_length = max_seq_length
         self.examples = []
