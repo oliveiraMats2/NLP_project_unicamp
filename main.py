@@ -10,7 +10,7 @@ configs = {'learning_rate': [1e-2, 1e-3, 1e-4, 1e-5, 1e-6],
            'num_iterations': 50,
            'criterion': torch.nn.CrossEntropyLoss(),
            'batch_size_train': [1, 10000, 1000, 100, 10, 1],
-           'batch_size_valid': 10,
+           'batch_size_valid': 100,
            'context_size': 300,
            'models': ['google/bert_uncased_L-2_H-128_A-2',
                       'google/bert_uncased_L-4_H-256_A-4',
@@ -61,14 +61,14 @@ train_dataset = ImdbDataset(x_train[:truncate], tokenizer, configs["context_size
 valid_dataset = ImdbDataset(x_valid[:truncate], tokenizer, configs["context_size"])
 
 train_dataloader = torch.utils.data.DataLoader(train_dataset,
-                                               batch_size=configs['batch_size_train'][0],
+                                               batch_size=configs['batch_size_train'][3],
                                                shuffle=False)# change
 
 valid_dataloader = torch.utils.data.DataLoader(valid_dataset,
                                                batch_size=configs['batch_size_valid'],
                                                shuffle=False)
 
-optimizer = torch.optim.SGD(model.parameters(), lr=configs['learning_rate'][0])
+optimizer = torch.optim.SGD(model.parameters(), lr=configs['learning_rate'][3])
 
 dict_statistics = {'train_loss': [],
                    'valid_loss': [],
