@@ -31,11 +31,11 @@ model = AutoModelForPreTraining.from_pretrained("gpt2")
 
 tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
 
-truncate = 50
+#truncate = 50
 
-train_dataset = ImdbDataset(x_train[:truncate], tokenizer, configs["context_size"])
+train_dataset = ImdbDataset(x_train, tokenizer, configs["context_size"])
 
-valid_dataset = ImdbDataset(x_valid[:truncate], tokenizer, configs["context_size"])
+valid_dataset = ImdbDataset(x_valid, tokenizer, configs["context_size"])
 
 train_dataloader = torch.utils.data.DataLoader(train_dataset,
                                                batch_size=configs['batch_size_train'],
