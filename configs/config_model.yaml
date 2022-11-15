@@ -3,6 +3,7 @@ batch_size_train: 1024
 batch_size_valid: 512
 learning_rate: 0.00005
 num_iterations: 5
+available: 400
 
 #----- wandb
 wandb: true
