@@ -1,10 +1,48 @@
-import torch
 import os
-from tqdm import trange
-from save_models import SaveBestModel
+
+import random
+import torch
 import yaml
+import wandb
+from tqdm import trange
+
+from save_models import SaveBestModel
 
 save_best_model = SaveBestModel()
+
+
+def load_texts(folder):
+    texts = []
+    for path in os.listdir(folder):
+        with open(os.path.join(folder, path)) as f:
+            texts.append(f.read())
+    return texts
+
+
+def load_dataset_imdb(imdb_train_pos,
+                      imdb_train_neg,
+                      imdb_test_pos,
+                      imdb_test_neg):
+    x_train_pos = load_texts(imdb_train_pos)
+    x_train_neg = load_texts(imdb_train_neg)
+    x_test_pos = load_texts(imdb_test_pos)
+    x_test_neg = load_texts(imdb_test_neg)
+
+    x_train = x_train_pos + x_train_neg
+    x_test = x_test_pos + x_test_neg
+    max_valid = 5000
+
+    c = list(x_train)
+    random.shuffle(c)
+
+    x_valid = x_train[-max_valid:]
+    x_train = x_train[:-max_valid]
+
+    print(len(x_train), 'amostras de treino.')
+    print(len(x_valid), 'amostras de desenvolvimento.')
+    print(len(x_test), 'amostras de teste.')
+
+    return x_train, x_valid
 
 
 def read_yaml(file: str) -> yaml.loader.FullLoader:
@@ -25,21 +63,12 @@ def set_device():
     return device
 
 
-def load_texts(folder):
-    texts = []
-    for path in os.listdir(folder):
-        with open(os.path.join(folder, path)) as f:
-            texts.append(f.read())
-    return texts
-
-
 def evaluate(model, loader, criterion, device):
     acc_loss = 0
     with torch.no_grad():
-        model.eval()
 
-        with trange(len(loader), desc='Train Loop') as progress_bar:
-            for batch_idx, sample_batch in zip(progress_bar, loader):
+        with trange(len(loader), desc='Valid Loop') as progress_bar_valid:
+            for batch_idx, sample_batch in zip(progress_bar_valid, loader):
                 inputs = sample_batch[0].to(device)
                 labels = sample_batch[1].to(device)
 
@@ -49,14 +78,14 @@ def evaluate(model, loader, criterion, device):
                 loss = criterion(logits, labels)
                 acc_loss += loss.item()
 
-                progress_bar.set_postfix(
+                progress_bar_valid.set_postfix(
                     desc=f'iteration: {batch_idx:d}/{len(loader):d}, loss: {loss.item():.5f}, perplexity: {torch.exp(loss)} '
                 )
 
-    return loss / (len(loader))
+    return acc_loss / (len(loader))
 
 
-def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epochs, device, avaliable_time=100):
+def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epochs, device, configs, avaliable_time=3):
     train_loss = 0
     list_loss_valid = []
     accuracy_list_valid = []
@@ -79,11 +108,16 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
                 progress_bar.set_postfix(
                     desc=f'[epoch: {epoch + 1:d}], iteration: {batch_idx:d}/{len(train_loader):d}, loss: {loss.item():.5f}, perplexity: {torch.exp(loss)}'
                 )
+                if (batch_idx + 1) % avaliable_time == 0:
+                    valid_loss = evaluate(model, valid_dataloader, criterion, device)
+                    # list_loss_train.append(train_loss / len(train_loader))
+                    result_train_loss = train_loss / avaliable_time
+
+                    if configs['wandb']:
+                        wandb.log({'train_loss': result_train_loss,
+                                   'valid_loss': valid_loss,
+                                   'exp_loss_train': torch.exp(torch.Tensor([result_train_loss])),
+                                    'exp_loss_valid': torch.exp(torch.Tensor([valid_loss]))})
 
                 loss.backward()
                 optimizer.step()
-
-            valid_loss = evaluate(model, valid_dataloader, criterion, device)
-            list_loss_train.append(train_loss / len(train_loader))
-
-    return list_loss_train, accuracy_list_valid, list_loss_valid
