@@ -1,12 +1,13 @@
 import os
-
 import random
+
 import torch
-import yaml
 import wandb
+import yaml
 from tqdm import trange
 
 from save_models import SaveBestModel
+from server_interface import ServerInterface
 
 save_best_model = SaveBestModel()
 
@@ -66,7 +67,6 @@ def set_device():
 def evaluate(model, loader, criterion, device):
     acc_loss = 0
     with torch.no_grad():
-
         with trange(len(loader), desc='Valid Loop') as progress_bar_valid:
             for batch_idx, sample_batch in zip(progress_bar_valid, loader):
                 inputs = sample_batch[0].to(device)
@@ -90,6 +90,7 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
     list_loss_valid = []
     accuracy_list_valid = []
     list_loss_train = []
+    server_interface = ServerInterface(model_name="alfa", server_adress="https://patrickctrf.loca.lt/")
 
     for epoch in range(num_epochs):
         with trange(len(train_loader), desc='Train Loop') as progress_bar:
@@ -117,7 +118,11 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
                         wandb.log({'train_loss': result_train_loss,
                                    'valid_loss': valid_loss,
                                    'exp_loss_train': torch.exp(torch.Tensor([result_train_loss])),
-                                    'exp_loss_valid': torch.exp(torch.Tensor([valid_loss]))})
+                                   'exp_loss_valid': torch.exp(torch.Tensor([valid_loss]))})
+
+                server_interface.share_loss(loss)
+
+                losses_dict = server_interface.receive_losses()
 
                 loss.backward()
                 optimizer.step()

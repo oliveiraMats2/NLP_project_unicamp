@@ -5,8 +5,8 @@ from save_logs import SaveLoss
 from utils import set_device, load_dataset_imdb, train, read_yaml
 
 
-configs = read_yaml('NLP_project_unicamp/configs/config_model.yaml')
-#configs = read_yaml('configs/config_model.yaml')
+# configs = read_yaml('NLP_project_unicamp/configs/config_model.yaml')
+configs = read_yaml('configs/config_model.yaml')
 
 device = set_device()
 
@@ -17,11 +17,11 @@ x_train, x_valid = load_dataset_imdb('aclImdb/train/pos',
 
 f_configurations = {}
 if configs['wandb']:
-    wandb.init(project="gpt_2_system_distribuited",
+    wandb.init(project="distributed_trainning_models",
                reinit=True,
                config=f_configurations,
                notes="Testing wandb implementation",
-               entity="oliveira_mats")
+               entity="nlp_lotufo_frasseto")
 
 save_scores = SaveLoss('')
 
