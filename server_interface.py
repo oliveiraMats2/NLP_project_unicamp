@@ -19,9 +19,14 @@ class ServerInterface(object):
         )
 
     def receive_losses(self, ):
-        response = self.clienteHttp.get(
-            url=urllib.parse.urljoin(self.server_adress, "neuralserver/sinc_losses"),
-        )
+        response_code = 0
+
+        # codigo 200 significa que o request deu certo
+        while response_code != 200:
+            response = self.clienteHttp.get(
+                url=urllib.parse.urljoin(self.server_adress, "neuralserver/sinc_losses"),
+            )
+            response_code = response.status_code
 
         # A resposta do servidor eh um dict serializado
         response_dict = pickle.loads(response.content)
@@ -40,9 +45,14 @@ class ServerInterface(object):
         )
 
     def receive_weights(self, ):
-        response = self.clienteHttp.get(
-            url=urllib.parse.urljoin(self.server_adress, "neuralserver/sinc_weights"),
-        )
+        response_code = 0
+
+        # codigo 200 significa que o request deu certo
+        while response_code != 200:
+            response = self.clienteHttp.get(
+                url=urllib.parse.urljoin(self.server_adress, "neuralserver/sinc_weights"),
+            )
+            response_code = response.status_code
 
         # A resposta do servidor eh um dict serializado
         response_dict = pickle.loads(response.content)
