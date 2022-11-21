@@ -13,6 +13,7 @@ loss_queue = Queue()
 
 @csrf_exempt
 def receive_loss(request):
+    print("Recebendo Loss")
     global loss_dict, max_loss_dict_size, loss_queue
 
     loss_dict[request.headers["model-name"]] = request.body
@@ -28,6 +29,7 @@ def receive_loss(request):
 
 
 def sinc_loss(request):
+    print("Compartilhando Loss")
     # O tipo de conteudo apenas formaliza que esta sendo transmitido dados binarios arbitrarios
     return HttpResponse(pickle.dumps(loss_queue.get()), headers={"content-type": "application/octet-stream"})
 

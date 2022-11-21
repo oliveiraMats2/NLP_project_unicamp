@@ -121,8 +121,13 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
                                    'exp_loss_valid': torch.exp(torch.Tensor([valid_loss]))})
 
                 server_interface.share_loss(loss)
-
                 losses_dict = server_interface.receive_losses()
 
-                loss.backward()
-                optimizer.step()
+                # Retropropagamos cada loss enviada por cada modelo
+                for k, single_loss in enumerate(losses_dict.values()):
+                    loss.data = single_loss.data
+
+                    if k == 0:
+                        loss.backward()
+
+                    optimizer.step()

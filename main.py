@@ -1,9 +1,10 @@
-import torch, wandb
+import torch
+import wandb
 from transformers import GPT2Config, GPT2Tokenizer, AutoModelForPreTraining
+
 from imdb_dataset import ImdbDataset
 from save_logs import SaveLoss
 from utils import set_device, load_dataset_imdb, train, read_yaml
-
 
 # configs = read_yaml('NLP_project_unicamp/configs/config_model.yaml')
 configs = read_yaml('configs/config_model.yaml')
@@ -31,7 +32,7 @@ model = AutoModelForPreTraining.from_pretrained("gpt2")
 
 tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
 
-#truncate = 50
+# truncate = 50
 
 train_dataset = ImdbDataset(x_train, tokenizer, configs["context_size"])
 
