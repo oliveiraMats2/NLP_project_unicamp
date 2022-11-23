@@ -33,6 +33,8 @@ def load_dataset_imdb(imdb_train_pos,
     x_test = x_test_pos + x_test_neg
     max_valid = 5000
 
+    x_train = x_train[:5050]
+
     c = list(x_train)
     random.shuffle(c)
 
@@ -90,7 +92,7 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
     list_loss_valid = []
     accuracy_list_valid = []
     list_loss_train = []
-    server_interface = ServerInterface(model_name=model_name, server_adress="https://patrickctrf.loca.lt/")
+    server_interface = ServerInterface(model_name=model_name, server_adress="http://127.0.0.1:8000/")  # "https://patrickctrf.loca.lt/")
 
     for epoch in range(num_epochs):
         with trange(len(train_loader), desc='Train Loop') as progress_bar:
@@ -120,14 +122,29 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
                                    'exp_loss_train': torch.exp(torch.Tensor([result_train_loss])),
                                    'exp_loss_valid': torch.exp(torch.Tensor([valid_loss]))})
 
-                server_interface.share_loss(loss)
-                losses_dict = server_interface.receive_losses()
+                with torch.no_grad():
+                    # print("single_loss: ", type(single_loss), single_loss)
+                    loss.set_(torch.randn_like(loss).detach().to(device))
 
-                # Retropropagamos cada loss enviada por cada modelo
-                for k, single_loss in enumerate(losses_dict.values()):
-                    loss.data = single_loss.data
+                loss.backward(retain_graph=True)
 
-                    if k == 0:
-                        loss.backward()
+                optimizer.step()
+                optimizer.zero_grad()
 
-                    optimizer.step()
+                # server_interface.share_loss(loss)
+                # losses_dict = server_interface.receive_losses()
+                #
+                # loss.backward(retain_graph=True)
+                #
+                # # Retropropagamos cada loss enviada por cada modelo
+                # for k, single_loss in enumerate(losses_dict.values()):
+                #     with torch.no_grad():
+                #         # print("single_loss: ", type(single_loss), single_loss)
+                #         loss.set_(torch.randn_like(loss).detach().to(device))
+                #         # loss.data = single_loss.data
+                #
+                #     loss.backward(retain_graph=True)
+                #
+                #     if k == 0:
+                #         optimizer.step()
+                #         optimizer.zero_grad()
