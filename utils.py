@@ -122,18 +122,9 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
                                    'exp_loss_train': torch.exp(torch.Tensor([result_train_loss])),
                                    'exp_loss_valid': torch.exp(torch.Tensor([valid_loss]))})
 
-                # with torch.no_grad():
-                #     # print("single_loss: ", type(single_loss), single_loss)
-                #     loss.set_(torch.randn_like(loss).detach().to(device))
-                #
-                # loss.backward(retain_graph=True)
-                #
-                # optimizer.step()
-                # optimizer.zero_grad()
-
                 model_state_dict = model.state_dict()
 
-                server_interface.share_loss(model_state_dict)
+                server_interface.share_weights(model_state_dict)
                 losses_dict = server_interface.receive_losses()
 
                 loss.backward(retain_graph=True)
