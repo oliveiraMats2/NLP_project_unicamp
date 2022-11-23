@@ -1,3 +1,5 @@
+import sys
+
 import torch
 import wandb
 from transformers import GPT2Config, GPT2Tokenizer, AutoModelForPreTraining
@@ -62,4 +64,5 @@ train(model.to(device),
       configs['num_iterations'],
       device,
       configs,
-      configs['available'])
+      configs['available'],
+      sys.argv[0])

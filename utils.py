@@ -85,12 +85,12 @@ def evaluate(model, loader, criterion, device):
     return acc_loss / (len(loader))
 
 
-def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epochs, device, configs, avaliable_time=3):
+def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epochs, device, configs, model_name, avaliable_time=3):
     train_loss = 0
     list_loss_valid = []
     accuracy_list_valid = []
     list_loss_train = []
-    server_interface = ServerInterface(model_name="omega", server_adress="https://patrickctrf.loca.lt/")
+    server_interface = ServerInterface(model_name=model_name, server_adress="https://patrickctrf.loca.lt/")
 
     for epoch in range(num_epochs):
         with trange(len(train_loader), desc='Train Loop') as progress_bar:
