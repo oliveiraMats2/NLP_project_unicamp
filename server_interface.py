@@ -65,7 +65,7 @@ class ServerInterface(object):
             try:
                 response = self.clienteHttp.post(
                     url=urllib.parse.urljoin(self.server_adress, "neuralserver/receive_weights"),
-                    files={"arquivo": pickle.dumps(weights_tensor)},
+                    data=pickle.dumps(weights_tensor),
                     headers={"model-name": self.model_name},
                     timeout=None,
                 )

@@ -33,7 +33,7 @@ def load_dataset_imdb(imdb_train_pos,
     x_test = x_test_pos + x_test_neg
     max_valid = 500
 
-    x_train = x_train[:max_valid + 30]#APENAS PARa debugger
+    x_train = x_train[:max_valid + 30]  # APENAS PARa debugger
 
     c = list(x_train)
     random.shuffle(c)
@@ -87,6 +87,19 @@ def evaluate(model, loader, criterion, device):
     return acc_loss / (len(loader))
 
 
+def means_two_state_models(state_dict_model_alpha, state_dict_model_beta):
+    for _, key_state_dict in enumerate(state_dict_model_alpha):
+        matrix_layer_alpha = state_dict_model_alpha[key_state_dict]
+        matrix_layer_beta = state_dict_model_beta[key_state_dict]
+
+        matrix_layer_alpha = matrix_layer_alpha.unsqueeze(2)
+        matrix_layer_beta = matrix_layer_beta.unsqueeze(2)
+
+        matrix_layer_alpha[key_state_dict] = torch.cat((matrix_layer_alpha, matrix_layer_beta), axis=2).mean(2)
+
+    return matrix_layer_alpha
+
+
 def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epochs, device, configs, model_name, avaliable_time=3):
     train_loss = 0
     list_loss_valid = []
@@ -122,21 +135,14 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
                                    'exp_loss_train': torch.exp(torch.Tensor([result_train_loss])),
                                    'exp_loss_valid': torch.exp(torch.Tensor([valid_loss]))})
 
-                model_state_dict = model.state_dict()
+                loss.backward()
+                optimizer.step()
 
-                server_interface.share_weights(model_state_dict)
-                losses_dict = server_interface.receive_losses()
+                server_interface.share_weights(model.state_dict())
+                weights_dict = server_interface.receive_weights()
 
-                loss.backward(retain_graph=True)
+                model.load_state_dict(
+                    means_two_state_models(weights_dict["alfa"], weights_dict["beta"])
+                )
 
-                # Retropropagamos cada loss enviada por cada modelo
-                for k, single_loss in enumerate(losses_dict.values()):
-                    # with torch.no_grad():
-                    #     # print("single_loss: ", type(single_loss), single_loss)
-                    #     loss.set_(torch.randn_like(loss).detach().to(device))
-                    #     # loss.data = single_loss.data
-                    loss.backward(retain_graph=True)
-
-                    if k == 0:
-                        optimizer.step()
-                        optimizer.zero_grad()
+                del weights_dict
