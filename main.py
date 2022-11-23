@@ -1,9 +1,9 @@
 import sys
 
 import torch
-import wandb
 from transformers import GPT2Config, GPT2Tokenizer, AutoModelForPreTraining
 
+import wandb
 from imdb_dataset import ImdbDataset
 from save_logs import SaveLoss
 from utils import set_device, load_dataset_imdb, train, read_yaml
@@ -64,5 +64,5 @@ train(model.to(device),
       configs['num_iterations'],
       device,
       configs,
-      configs['available'],
-      sys.argv[0])
+      sys.argv[0],
+      configs['available'])
