@@ -12,8 +12,8 @@ share_loss_dict = {}
 
 @csrf_exempt
 def receive_loss(request):
-    print("Recebendo Loss")
-    global loss_dict, max_loss_dict_size
+    print("Recebendo Loss: ", request.headers["model-name"])
+    global loss_dict, max_loss_dict_size, share_loss_dict
 
     loss_dict[request.headers["model-name"]] = request.body
 
@@ -28,7 +28,7 @@ def receive_loss(request):
 
 
 def sinc_loss(request):
-    print("Compartilhando Loss")
+    print("Compartilhando Loss: ", request.headers["model-name"])
 
     while request.headers["model-name"] not in share_loss_dict.keys():
         time.sleep(0.1)
@@ -44,8 +44,8 @@ share_weight_dict = {}
 
 @csrf_exempt
 def receive_weight(request):
-    print("Recebendo weight")
-    global weight_dict, max_weight_dict_size
+    print("Recebendo weight: ", request.headers["model-name"])
+    global weight_dict, max_weight_dict_size, share_weight_dict
 
     weight_dict[request.headers["model-name"]] = request.body
 
@@ -60,7 +60,7 @@ def receive_weight(request):
 
 
 def sinc_weight(request):
-    print("Compartilhando weight")
+    print("Compartilhando weight: ", request.headers["model-name"])
 
     while request.headers["model-name"] not in share_weight_dict.keys():
         time.sleep(0.1)
