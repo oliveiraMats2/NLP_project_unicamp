@@ -6,4 +6,4 @@ num_iterations: 5
 available: 400
 
 #----- wandb
-wandb: true
+wandb: false

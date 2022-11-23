@@ -92,12 +92,25 @@ def means_two_state_models(state_dict_model_alpha, state_dict_model_beta):
         matrix_layer_alpha = state_dict_model_alpha[key_state_dict]
         matrix_layer_beta = state_dict_model_beta[key_state_dict]
 
-        matrix_layer_alpha = matrix_layer_alpha.unsqueeze(2)
-        matrix_layer_beta = matrix_layer_beta.unsqueeze(2)
+        if len(matrix_layer_alpha.shape) < 1:
+            matrix_layer_alpha = matrix_layer_alpha.unsqueeze(0)
+            matrix_layer_beta = matrix_layer_beta.unsqueeze(0)
 
-        matrix_layer_alpha[key_state_dict] = torch.cat((matrix_layer_alpha, matrix_layer_beta), axis=2).mean(2)
+            state_dict_model_alpha[key_state_dict] = torch.cat((matrix_layer_alpha, matrix_layer_beta), axis=0).sum(0) / 2
 
-    return matrix_layer_alpha
+        elif len(matrix_layer_alpha.shape) < 2:
+            matrix_layer_alpha = matrix_layer_alpha.unsqueeze(1)
+            matrix_layer_beta = matrix_layer_beta.unsqueeze(1)
+
+            state_dict_model_alpha[key_state_dict] = torch.cat((matrix_layer_alpha, matrix_layer_beta), axis=1).sum(1) / 2
+
+        else:
+            matrix_layer_alpha = matrix_layer_alpha.unsqueeze(2)
+            matrix_layer_beta = matrix_layer_beta.unsqueeze(2)
+
+            state_dict_model_alpha[key_state_dict] = torch.cat((matrix_layer_alpha, matrix_layer_beta), axis=2).sum(2) / 2
+
+    return state_dict_model_alpha
 
 
 def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epochs, device, configs, model_name, avaliable_time=3):
