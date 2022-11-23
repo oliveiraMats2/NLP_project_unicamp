@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+from django.conf.global_settings import DEBUG
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,10 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-e!*f8^93z_dn728bb7lrn6qv%+5z^-%^%ojgrpg&q7$+b9@u#s'
+SECRET_KEY = 'django-insecure-e!*f8^93z_dn728bb7lrn6qv%+5z^-%^%ojgrp\g&q7$+b9@u#s'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5221225472
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5221225472
 
 ALLOWED_HOSTS = ['*']
 
