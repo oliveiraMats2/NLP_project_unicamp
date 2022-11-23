@@ -12,21 +12,36 @@ class ServerInterface(object):
         self.clienteHttp = requests.session()
 
     def share_loss(self, loss_tensor):
-        return self.clienteHttp.post(
-            url=urllib.parse.urljoin(self.server_adress, "neuralserver/receive_losses"),
-            data=pickle.dumps(loss_tensor),
-            headers={"model-name": self.model_name},
-        )
+        response_code = 0
+
+        # codigo 200 significa que o request deu certo
+        while response_code != 200:
+            try:
+                response = self.clienteHttp.post(
+                    url=urllib.parse.urljoin(self.server_adress, "neuralserver/receive_losses"),
+                    data=pickle.dumps(loss_tensor),
+                    headers={"model-name": self.model_name},
+                    timeout=5,
+                )
+                response_code = response.status_code
+            except requests.exceptions.RequestException as e:
+                print("Trying request share_loss again")
+
+        return response
 
     def receive_losses(self, ):
         response_code = 0
 
         # codigo 200 significa que o request deu certo
         while response_code != 200:
-            response = self.clienteHttp.get(
-                url=urllib.parse.urljoin(self.server_adress, "neuralserver/sinc_losses"),
-            )
-            response_code = response.status_code
+            try:
+                response = self.clienteHttp.get(
+                    url=urllib.parse.urljoin(self.server_adress, "neuralserver/sinc_losses"),
+                    timeout=5,
+                )
+                response_code = response.status_code
+            except requests.exceptions.RequestException as e:
+                print("Trying request receive_losses again")
 
         # A resposta do servidor eh um dict serializado
         response_dict = pickle.loads(response.content)
@@ -38,21 +53,36 @@ class ServerInterface(object):
         return response_dict
 
     def share_weights(self, weights_tensor):
-        return self.clienteHttp.post(
-            url=urllib.parse.urljoin(self.server_adress, "neuralserver/receive_weights"),
-            data=pickle.dumps(weights_tensor),
-            headers={"model-name": self.model_name},
-        )
+        response_code = 0
+
+        # codigo 200 significa que o request deu certo
+        while response_code != 200:
+            try:
+                response = self.clienteHttp.post(
+                    url=urllib.parse.urljoin(self.server_adress, "neuralserver/receive_weights"),
+                    data=pickle.dumps(weights_tensor),
+                    headers={"model-name": self.model_name},
+                    timeout=5,
+                )
+                response_code = response.status_code
+            except requests.exceptions.RequestException as e:
+                print("Trying request share_weights again")
+
+        return response
 
     def receive_weights(self, ):
         response_code = 0
 
         # codigo 200 significa que o request deu certo
         while response_code != 200:
-            response = self.clienteHttp.get(
-                url=urllib.parse.urljoin(self.server_adress, "neuralserver/sinc_weights"),
-            )
-            response_code = response.status_code
+            try:
+                response = self.clienteHttp.get(
+                    url=urllib.parse.urljoin(self.server_adress, "neuralserver/sinc_weights"),
+                    timeout=5,
+                )
+                response_code = response.status_code
+            except requests.exceptions.RequestException as e:
+                print("Trying request receive_weights again")
 
         # A resposta do servidor eh um dict serializado
         response_dict = pickle.loads(response.content)
