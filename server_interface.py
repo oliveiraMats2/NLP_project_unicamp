@@ -37,6 +37,7 @@ class ServerInterface(object):
             try:
                 response = self.clienteHttp.get(
                     url=urllib.parse.urljoin(self.server_adress, "neuralserver/sinc_losses"),
+                    headers={"model-name": self.model_name},
                     timeout=5,
                 )
                 response_code = response.status_code
@@ -78,6 +79,7 @@ class ServerInterface(object):
             try:
                 response = self.clienteHttp.get(
                     url=urllib.parse.urljoin(self.server_adress, "neuralserver/sinc_weights"),
+                    headers={"model-name": self.model_name},
                     timeout=5,
                 )
                 response_code = response.status_code
