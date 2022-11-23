@@ -21,11 +21,13 @@ class ServerInterface(object):
                     url=urllib.parse.urljoin(self.server_adress, "neuralserver/receive_losses"),
                     data=pickle.dumps(loss_tensor),
                     headers={"model-name": self.model_name},
-                    timeout=5,
+                    timeout=None,
                 )
                 response_code = response.status_code
-            except requests.exceptions.RequestException as e:
+            except requests.exceptions.Timeout as e:
                 print("Trying request share_loss again")
+
+            print("Response status code: ", response_code)
 
         return response
 
@@ -38,11 +40,13 @@ class ServerInterface(object):
                 response = self.clienteHttp.get(
                     url=urllib.parse.urljoin(self.server_adress, "neuralserver/sinc_losses"),
                     headers={"model-name": self.model_name},
-                    timeout=5,
+                    timeout=None,
                 )
                 response_code = response.status_code
-            except requests.exceptions.RequestException as e:
+            except requests.exceptions.Timeout as e:
                 print("Trying request receive_losses again")
+
+            print("Response status code: ", response_code)
 
         # A resposta do servidor eh um dict serializado
         response_dict = pickle.loads(response.content)
@@ -63,11 +67,13 @@ class ServerInterface(object):
                     url=urllib.parse.urljoin(self.server_adress, "neuralserver/receive_weights"),
                     data=pickle.dumps(weights_tensor),
                     headers={"model-name": self.model_name},
-                    timeout=5,
+                    timeout=None,
                 )
                 response_code = response.status_code
-            except requests.exceptions.RequestException as e:
+            except requests.exceptions.Timeout as e:
                 print("Trying request share_weights again")
+
+            print("Response status code: ", response_code)
 
         return response
 
@@ -80,11 +86,13 @@ class ServerInterface(object):
                 response = self.clienteHttp.get(
                     url=urllib.parse.urljoin(self.server_adress, "neuralserver/sinc_weights"),
                     headers={"model-name": self.model_name},
-                    timeout=5,
+                    timeout=None,
                 )
                 response_code = response.status_code
-            except requests.exceptions.RequestException as e:
+            except requests.exceptions.Timeout as e:
                 print("Trying request receive_weights again")
+
+            print("Response status code: ", response_code)
 
         # A resposta do servidor eh um dict serializado
         response_dict = pickle.loads(response.content)

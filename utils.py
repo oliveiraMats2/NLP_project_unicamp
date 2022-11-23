@@ -90,7 +90,7 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
     list_loss_valid = []
     accuracy_list_valid = []
     list_loss_train = []
-    server_interface = ServerInterface(model_name="alfa", server_adress="https://patrickctrf.loca.lt/")
+    server_interface = ServerInterface(model_name="omega", server_adress="https://patrickctrf.loca.lt/")
 
     for epoch in range(num_epochs):
         with trange(len(train_loader), desc='Train Loop') as progress_bar:
