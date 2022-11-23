@@ -64,5 +64,5 @@ train(model.to(device),
       configs['num_iterations'],
       device,
       configs,
-      sys.argv[0],
+      sys.argv[1],
       configs['available'])
