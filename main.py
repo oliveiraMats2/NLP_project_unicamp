@@ -9,6 +9,7 @@ from save_logs import SaveLoss
 from utils import set_device, load_dataset_imdb, train, read_yaml
 
 # configs = read_yaml('NLP_project_unicamp/configs/config_model.yaml')
+name = sys.argv[1]
 configs = read_yaml('configs/config_model.yaml')
 
 device = set_device()
@@ -28,17 +29,15 @@ if configs['wandb']:
 
 save_scores = SaveLoss('')
 
-config = GPT2Config()
-
 model = AutoModelForPreTraining.from_pretrained("gpt2")
 
 tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
 
 # truncate = 50
 
-train_dataset = ImdbDataset(x_train, tokenizer, configs["context_size"])
+train_dataset = ImdbDataset(x_train, tokenizer, configs["context_size"], name)
 
-valid_dataset = ImdbDataset(x_valid, tokenizer, configs["context_size"])
+valid_dataset = ImdbDataset(x_valid, tokenizer, configs["context_size"], name)
 
 train_dataloader = torch.utils.data.DataLoader(train_dataset,
                                                batch_size=configs['batch_size_train'],
@@ -54,7 +53,7 @@ dict_statistics = {'train_loss': [],
                    'valid_loss': [],
                    'valid_accuracy': []}
 
-criterion = torch.nn.CrossEntropyLoss()
+criterion = torch.nn.functional.cross_entropy
 # model, train_loader, valid_dataloader, optimizer, criterion, num_epochs, device
 train(model.to(device),
       train_dataloader,
@@ -64,5 +63,5 @@ train(model.to(device),
       configs['num_iterations'],
       device,
       configs,
-      sys.argv[1],
+      name,
       configs['available'])

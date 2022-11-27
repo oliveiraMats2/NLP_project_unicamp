@@ -78,7 +78,7 @@ class ImdbDataset_slice(torch.utils.data.Dataset):
 
 
 class ImdbDataset(torch.utils.data.Dataset):
-    def __init__(self, texts: List[str], tokenizer, max_seq_length: int):
+    def __init__(self, texts: List[str], tokenizer, max_seq_length: int, name_node=None):
         self.max_seq_length = max_seq_length
         self.examples = []
 
@@ -108,6 +108,22 @@ class ImdbDataset(torch.utils.data.Dataset):
                     self.examples.append(tokenized_text[-max_seq_length - 1:])
 
         self.examples = torch.LongTensor(self.examples)
+
+        print(f"total examples texts context: {len(self.examples)}")
+
+        print(f"total examples texts between nodes: {len(self.examples)//2}")
+
+        if name_node == 'alfa':
+            examples_length = len(self.examples)
+            half_examples = examples_length // 2
+
+            self.examples = self.examples[:half_examples]
+
+        if name_node == 'beta':
+            examples_length = len(self.examples)
+            half_examples = examples_length // 2
+
+            self.examples = self.examples[(half_examples + 1):]
 
     def __len__(self):
         return len(self.examples)

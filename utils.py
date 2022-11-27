@@ -118,7 +118,7 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
     list_loss_valid = []
     accuracy_list_valid = []
     list_loss_train = []
-    server_interface = ServerInterface(model_name=model_name, server_adress="http://127.0.0.1:8000/")  # "https://patrickctrf.loca.lt/")
+    # server_interface = ServerInterface(model_name=model_name, server_adress="http://127.0.0.1:8000/")  # "https://patrickctrf.loca.lt/")
 
     for epoch in range(num_epochs):
         with trange(len(train_loader), desc='Train Loop') as progress_bar:
@@ -130,17 +130,22 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
 
                 outputs = model(inputs)
                 logits = outputs.logits.permute(0, 2, 1)
-
-                loss = criterion(logits, labels)
+                
+                loss = criterion(logits, labels, ignore_index=train_loader.dataset.tokenizer.pad_token_id)
                 train_loss += loss.item()
 
                 progress_bar.set_postfix(
                     desc=f'[epoch: {epoch + 1:d}], iteration: {batch_idx:d}/{len(train_loader):d}, loss: {loss.item():.5f}, perplexity: {torch.exp(loss)}'
                 )
+                if configs['wandb']:
+                    wandb.log({'train_loss': loss})
+                    wandb.log({'train_perplexity': torch.exp(loss)})
+
                 if (batch_idx + 1) % avaliable_time == 0:
                     valid_loss = evaluate(model, valid_dataloader, criterion, device)
                     # list_loss_train.append(train_loss / len(train_loader))
                     result_train_loss = train_loss / avaliable_time
+                    save_best_model
 
                     if configs['wandb']:
                         wandb.log({'train_loss': result_train_loss,
@@ -151,11 +156,11 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
                 loss.backward()
                 optimizer.step()
 
-                server_interface.share_weights(model.state_dict())
-                weights_dict = server_interface.receive_weights()
+                # server_interface.share_weights(model.state_dict())
+                # weights_dict = server_interface.receive_weights()
 
-                model.load_state_dict(
-                    means_two_state_models(weights_dict["alfa"], weights_dict["beta"])
-                )
-
-                del weights_dict
+                # model.load_state_dict(
+                #     means_two_state_models(weights_dict["alfa"], weights_dict["beta"])
+                # )
+                #
+                # del weights_dict
