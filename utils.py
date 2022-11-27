@@ -132,7 +132,7 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
                 logits = outputs.logits.permute(0, 2, 1)
                 
                 loss = criterion(logits, labels, ignore_index=train_loader.dataset.tokenizer.pad_token_id)
-                train_loss += loss.item()
+                # train_loss += loss.item()
 
                 progress_bar.set_postfix(
                     desc=f'[epoch: {epoch + 1:d}], iteration: {batch_idx:d}/{len(train_loader):d}, loss: {loss.item():.5f}, perplexity: {torch.exp(loss)}'
@@ -144,13 +144,11 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
                 if (batch_idx + 1) % avaliable_time == 0:
                     valid_loss = evaluate(model, valid_dataloader, criterion, device)
                     # list_loss_train.append(train_loss / len(train_loader))
-                    result_train_loss = train_loss / avaliable_time
-                    save_best_model
+                    # result_train_loss = train_loss / avaliable_time
+                    # save_best_model
 
                     if configs['wandb']:
-                        wandb.log({'train_loss': result_train_loss,
-                                   'valid_loss': valid_loss,
-                                   'exp_loss_train': torch.exp(torch.Tensor([result_train_loss])),
+                        wandb.log({'valid_loss': valid_loss,
                                    'exp_loss_valid': torch.exp(torch.Tensor([valid_loss]))})
 
                 loss.backward()
