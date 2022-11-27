@@ -1,6 +1,6 @@
 context_size: 20
-batch_size_train: 32
-batch_size_valid: 1
+batch_size_train: 255
+batch_size_valid: 127
 learning_rate: 0.00005
 num_iterations: 30
 available: 62

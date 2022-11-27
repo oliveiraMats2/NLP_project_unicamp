@@ -23,7 +23,9 @@ def load_texts(folder):
 def load_dataset_imdb(imdb_train_pos,
                       imdb_train_neg,
                       imdb_test_pos,
-                      imdb_test_neg):
+                      imdb_test_neg,
+                      porcentage=0.8):
+
     x_train_pos = load_texts(imdb_train_pos)
     x_train_neg = load_texts(imdb_train_neg)
     x_test_pos = load_texts(imdb_test_pos)
@@ -31,15 +33,13 @@ def load_dataset_imdb(imdb_train_pos,
 
     x_train = x_train_pos + x_train_neg
     x_test = x_test_pos + x_test_neg
-    max_valid = 500
 
-    x_train = x_train[:max_valid + 30]  # APENAS PARa debugger
+    #x_train = x_train[:max_valid + 30]  # APENAS PARa debugger
 
-    c = list(x_train)
-    random.shuffle(c)
+    n_train = int(porcentage * len(x_train))
 
-    x_valid = x_train[-max_valid:]
-    x_train = x_train[:-max_valid]
+    x_valid = x_train[n_train:]
+    x_train = x_train[:n_train]
 
     print(len(x_train), 'amostras de treino.')
     print(len(x_valid), 'amostras de desenvolvimento.')
