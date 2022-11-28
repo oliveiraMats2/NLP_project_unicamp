@@ -118,7 +118,8 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
     list_loss_valid = []
     accuracy_list_valid = []
     list_loss_train = []
-    # server_interface = ServerInterface(model_name=model_name, server_adress="http://127.0.0.1:8000/")  # "https://patrickctrf.loca.lt/")
+    server_interface = ServerInterface(model_name=model_name, server_adress="http://127.0.0.1:8000/")  # "https://patrickctrf.loca.lt/")
+    server_interface.reset_server_cache()
 
     for epoch in range(num_epochs):
         with trange(len(train_loader), desc='Train Loop') as progress_bar:
@@ -154,11 +155,11 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
                 loss.backward()
                 optimizer.step()
 
-                # server_interface.share_weights(model.state_dict())
-                # weights_dict = server_interface.receive_weights()
+                server_interface.share_weights(model.state_dict())
+                weights_dict = server_interface.receive_weights()
 
-                # model.load_state_dict(
-                #     means_two_state_models(weights_dict["alfa"], weights_dict["beta"])
-                # )
-                #
-                # del weights_dict
+                model.load_state_dict(
+                    means_two_state_models(weights_dict["alfa"], weights_dict["beta"])
+                )
+
+                del weights_dict
