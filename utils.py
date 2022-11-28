@@ -25,7 +25,6 @@ def load_dataset_imdb(imdb_train_pos,
                       imdb_test_pos,
                       imdb_test_neg,
                       porcentage=0.8):
-
     x_train_pos = load_texts(imdb_train_pos)
     x_train_neg = load_texts(imdb_train_neg)
     x_test_pos = load_texts(imdb_test_pos)
@@ -34,7 +33,7 @@ def load_dataset_imdb(imdb_train_pos,
     x_train = x_train_pos + x_train_neg
     x_test = x_test_pos + x_test_neg
 
-    #x_train = x_train[:max_valid + 30]  # APENAS PARa debugger
+    # x_train = x_train[:max_valid + 30]  # APENAS PARa debugger
 
     n_train = int(porcentage * len(x_train))
 
@@ -118,7 +117,7 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
     list_loss_valid = []
     accuracy_list_valid = []
     list_loss_train = []
-    server_interface = ServerInterface(model_name=model_name, server_adress="http://127.0.0.1:8000/")  # "https://patrickctrf.loca.lt/")
+    server_interface = ServerInterface(model_name=model_name, server_adress="http://65.108.32.161:8000/")  # "https://patrickctrf.loca.lt/")
     server_interface.reset_server_cache()
 
     for epoch in range(num_epochs):
@@ -131,7 +130,7 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
 
                 outputs = model(inputs)
                 logits = outputs.logits.permute(0, 2, 1)
-                
+
                 loss = criterion(logits, labels, ignore_index=train_loader.dataset.tokenizer.pad_token_id)
                 # train_loss += loss.item()
 
