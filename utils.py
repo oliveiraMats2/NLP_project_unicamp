@@ -117,7 +117,7 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
     list_loss_valid = []
     accuracy_list_valid = []
     list_loss_train = []
-    server_interface = ServerInterface(model_name=model_name, server_adress="http://65.108.32.161:8000/")  # "https://patrickctrf.loca.lt/")
+    server_interface = ServerInterface(model_name=model_name, server_adress="http://65.108.32.139:8000/")  # "https://patrickctrf.loca.lt/")
     server_interface.reset_server_cache()
 
     for epoch in range(num_epochs):
