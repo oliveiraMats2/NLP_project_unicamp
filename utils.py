@@ -122,7 +122,7 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
 
     for epoch in range(num_epochs):
         with trange(len(train_loader), desc='Train Loop') as progress_bar:
-            for batch_idx, sample_batch in zip(progress_bar, train_loader):
+            for i, (batch_idx, sample_batch) in enumerate(zip(progress_bar, train_loader)):
                 optimizer.zero_grad()
 
                 inputs = sample_batch[0].to(device)
@@ -154,11 +154,13 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
                 loss.backward()
                 optimizer.step()
 
-                server_interface.share_weights(model.state_dict())
-                weights_dict = server_interface.receive_weights()
+                if (i + 1) % 100 == 0:
 
-                model.load_state_dict(
-                    means_two_state_models(weights_dict["alfa"], weights_dict["beta"])
-                )
+                    server_interface.share_weights(model.state_dict())
+                    weights_dict = server_interface.receive_weights()
 
-                del weights_dict
+                    model.load_state_dict(
+                        means_two_state_models(weights_dict["alfa"], weights_dict["beta"])
+                    )
+
+                    del weights_dict
