@@ -120,9 +120,10 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
     server_interface = ServerInterface(model_name=model_name, server_adress="http://65.108.32.139:8000/")  # "https://patrickctrf.loca.lt/")
     server_interface.reset_server_cache()
 
+    step_counter = 0
     for epoch in range(num_epochs):
         with trange(len(train_loader), desc='Train Loop') as progress_bar:
-            for i, (batch_idx, sample_batch) in enumerate(zip(progress_bar, train_loader)):
+            for j, (batch_idx, sample_batch) in enumerate(zip(progress_bar, train_loader)):
                 optimizer.zero_grad()
 
                 inputs = sample_batch[0].to(device)
@@ -154,7 +155,8 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
                 loss.backward()
                 optimizer.step()
 
-                if (i + 1) % 2000 == 0:
+                step_counter += 1
+                if step_counter % 2000 == 0:
 
                     server_interface.share_weights(model.state_dict())
                     weights_dict = server_interface.receive_weights()
