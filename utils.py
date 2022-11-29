@@ -154,7 +154,7 @@ def train(model, train_loader, valid_dataloader, optimizer, criterion, num_epoch
                 loss.backward()
                 optimizer.step()
 
-                if (i + 1) % 100 == 0:
+                if (i + 1) % 1000 == 0:
 
                     server_interface.share_weights(model.state_dict())
                     weights_dict = server_interface.receive_weights()
